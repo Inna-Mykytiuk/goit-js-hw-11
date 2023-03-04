@@ -8,6 +8,7 @@ const gallery = document.querySelector('.gallery');
 const btnLoadMore = document.querySelector('.load-more');
 let gallerySimpleLightbox = new SimpleLightbox('.gallery a');
 
+//Генерація запиту
 const fetchImages = async (inputValue, pageNr) => {
   return await fetch(
     `https://pixabay.com/api/?key=34130140-d575f247069181564a4d7a644&q=${inputValue}&orientation=horizontal&safesearch=true&image_type=photo&per_page=40&page=${pageNr}`
@@ -77,9 +78,9 @@ function renderImageList(images) {
     .map(image => {
       console.log('img', image);
       return `<div class="photo-card">
-       <a href="${image.largeImageURL}"><img class="photo" src="${image.webformatURL}" alt="${image.tags}" title="${image.tags}" loading="lazy"/></a>
+      <a href="${image.largeImageURL}"><img class="photo" src="${image.webformatURL}" alt="${image.tags}" title="${image.tags}" loading="lazy"/></a>
         <div class="info">
-           <p class="info-item">
+          <p class="info-item">
     <b>Likes</b> <span class="info-item-api"> ${image.likes} </span>
 </p>
             <p class="info-item">
