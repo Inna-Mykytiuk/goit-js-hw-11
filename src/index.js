@@ -1,107 +1,129 @@
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import axios from 'axios';
 
-const input = document.querySelector('.search-form-input');
-const btnSearch = document.querySelector('.search-form-button');
-const gallery = document.querySelector('.gallery');
-const btnLoadMore = document.querySelector('.load-more');
-let gallerySimpleLightbox = new SimpleLightbox('.gallery a');
-
-//Генерація запиту
-const fetchImages = async (inputValue, pageNr) => {
-  return await fetch(
-    `https://pixabay.com/api/?key=34130140-d575f247069181564a4d7a644&q=${inputValue}&orientation=horizontal&safesearch=true&image_type=photo&per_page=40&page=${pageNr}`
-  )
-    .then(async response => {
-      if (!response.ok) {
-        if (response.status === 404) {
-          return [];
-        }
-        throw new Error(response.status);
-      }
-      return await response.json();
-    })
-    .catch(error => {
-      console.error(error);
-    });
+const refs = {
+  form: document.querySelector('.search-form'),
+  input: document.querySelector('.search-form-input'),
+  gallery: document.querySelector('.gallery'),
+  btnLoadMore: document.querySelector('.load-more'),
 };
 
-btnLoadMore.style.display = 'none';
+let page = 1;
 
-let pageNumber = 1;
+refs.btnLoadMore.style.display = 'none';
+refs.form.addEventListener('submit', onSearch);
+refs.btnLoadMore.addEventListener('click', onBtnLoadMore);
 
-btnSearch.addEventListener('click', e => {
-  e.preventDefault();
-  cleanGallery();
-  const trimmedValue = input.value.trim();
-  if (trimmedValue !== '') {
-    fetchImages(trimmedValue, pageNumber).then(foundData => {
-      if (foundData.hits.length === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      } else {
-        renderImageList(foundData.hits);
-        Notiflix.Notify.success(
-          `Hooray! We found ${foundData.totalHits} images.`
-        );
-        btnLoadMore.style.display = 'block';
-        gallerySimpleLightbox.refresh();
-      }
-    });
+function onSearch(evt) {
+  evt.preventDefault();
+
+  page = 1;
+  refs.gallery.innerHTML = '';
+
+  const name = refs.input.value.trim();
+
+  if (name !== '') {
+    pixabay(name);
+  } else {
+    refs.btnLoadMore.style.display = 'none';
+
+    return Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
   }
-});
-
-btnLoadMore.addEventListener('click', () => {
-  pageNumber++;
-  const trimmedValue = input.value.trim();
-  btnLoadMore.style.display = 'none';
-  fetchImages(trimmedValue, pageNumber).then(foundData => {
-    if (foundData.hits.length === 0) {
-      Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-    } else {
-      renderImageList(foundData.hits);
-      Notiflix.Notify.success(
-        `Hooray! We found ${foundData.totalHits} images.`
-      );
-      btnLoadMore.style.display = 'block';
-    }
-  });
-});
-
-//створення розмітки
-function renderImageList(images) {
-  console.log(images, 'images');
-  const markup = images
-    .map(image => {
-      console.log('img', image);
-      return `<div class="photo-card">
-      <a href="${image.largeImageURL}"><img class="photo" src="${image.webformatURL}" alt="${image.tags}" title="${image.tags}" loading="lazy"/></a>
-        <div class="info">
-          <p class="info-item">
-            <b>Likes</b> <span class="info-item-api"> ${image.likes} </span>
-          </p>
-          <p class="info-item">
-              <b>Views</b> <span class="info-item-api">${image.views}</span>  
-          </p>
-          <p class="info-item">
-              <b>Comments</b> <span class="info-item-api">${image.comments}</span>  
-          </p>
-          <p class="info-item">
-              <b>Downloads</b> <span class="info-item-api">${image.downloads}</span> 
-          </p>
-        </div>
-    </div>`;
-    })
-    .join('');
-  gallery.innerHTML += markup;
 }
 
-function cleanGallery() {
-  gallery.innerHTML = '';
-  pageNumber = 1;
-  btnLoadMore.style.display = 'none';
+function onBtnLoadMore() {
+  const name = refs.input.value.trim();
+  page += 1;
+  pixabay(name, page);
+}
+
+async function pixabay(name, page) {
+  const API_URL = 'https://pixabay.com/api/';
+
+  const options = {
+    params: {
+      key: '34130140-d575f247069181564a4d7a644',
+      q: name,
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: 'true',
+      page: page,
+      per_page: 40,
+    },
+  };
+
+  try {
+    const response = await axios.get(API_URL, options);
+
+    notification(response.data.hits.length, response.data.total);
+
+    createMarkup(response.data);
+    refs.form.reset();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+function createMarkup(arr) {
+  const markup = arr.hits
+    .map(
+      item =>
+        `<a class="photo-link" href="${item.largeImageURL}">
+          <div class="photo-card">
+          <img src="${item.webformatURL}" alt="${item.tags}" loading="lazy"/>
+          <div class="info">
+              <p class="info-item">
+                  <b>Likes</b>
+                  ${item.likes}
+              </p>
+              <p class="info-item">
+                  <b>Views</b>
+                  ${item.views}
+              </p>
+              <p class="info-item">
+                  <b>Comments</b>
+                  ${item.comments}
+              </p>
+              <p class="info-item">
+                  <b>Downloads</b>
+                  ${item.downloads}
+              </p>
+          </div>
+          </div>
+        </a>`
+    )
+    .join('');
+  refs.gallery.insertAdjacentHTML('beforeend', markup);
+  simpleLightBox.refresh();
+}
+
+const simpleLightBox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
+
+// всі сповіщення notiflix
+function notification(length, totalHits) {
+  if (length === 0) {
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    return;
+  }
+
+  if (page === 1) {
+    refs.btnLoadMore.style.display = 'flex';
+    Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+  }
+
+  if (length < 40) {
+    refs.btnLoadMore.style.display = 'none';
+    Notiflix.Notify.info(
+      "We're sorry, but you've reached the end of search results."
+    );
+  }
 }

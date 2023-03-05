@@ -1,0 +1,68 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Playfair Display', serif;
+  // display: flex;
+  // flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  // letter-spacing: 0.02em;
+  // font-size: 14px;
+  // line-height: 1.85;
+  overflow-x: hidden;
+  margin: 0 auto;
+  // transition: 1.5s;
+}
+
+body::-webkit-scrollbar {
+  appearance: none;
+  background: #000;
+
+  width: 5px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 5px;
+}
+
+.container {
+  width: 100%;
+  padding: 0 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  width: 100%;
+}
+
+p,
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 auto;
+}
+
+ul,
+ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
