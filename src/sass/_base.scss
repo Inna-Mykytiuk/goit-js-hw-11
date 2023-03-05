@@ -6,18 +6,10 @@
 
 body {
   font-family: 'Playfair Display', serif;
-  // display: flex;
-  // flex-direction: column;
-  // justify-content: center;
-  // align-items: center;
   width: 100%;
   min-height: 100vh;
-  // letter-spacing: 0.02em;
-  // font-size: 14px;
-  // line-height: 1.85;
   overflow-x: hidden;
   margin: 0 auto;
-  // transition: 1.5s;
 }
 
 body::-webkit-scrollbar {
@@ -30,13 +22,6 @@ body::-webkit-scrollbar {
 body::-webkit-scrollbar-thumb {
   background: white;
   border-radius: 5px;
-}
-
-.container {
-  width: 100%;
-  padding: 0 15px;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 img {
