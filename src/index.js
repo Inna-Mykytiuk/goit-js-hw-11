@@ -19,20 +19,18 @@ refs.btnLoadMore.addEventListener('click', onBtnLoadMore); // слухач по�
 
 // обробка події на submit
 function onSearch(evt) {
-  evt.preventDefault(); // відміна перезавантаження сторінки
+  evt.preventDefault();
 
   page = 1;
-  refs.gallery.innerHTML = ''; // очищення попереднього вмісту галереї
+  refs.gallery.innerHTML = '';
 
-  const name = refs.input.value.trim(); // обрізання пробілів до і після слова
+  const name = refs.input.value.trim();
 
-  // якщо слово пошука НЕ пуста строка то:
   if (name !== '') {
-    pixabay(name); // отримати зображення
+    pixabay(name);
   } else {
     refs.btnLoadMore.style.display = 'none';
 
-    // вивести повідомлення про те, що НЕ знайдено жодного зображення
     return Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
@@ -42,11 +40,10 @@ function onSearch(evt) {
 // дії кнопки LoadMore
 function onBtnLoadMore() {
   const name = refs.input.value.trim();
-  page += 1; // додаємо +1 сторінку яка має +40 картинок
+  page += 1;
   pixabay(name, page); // завантаження зображень
 }
 
-// отримання зображень
 async function pixabay(name, page) {
   const API_URL = 'https://pixabay.com/api/';
 
@@ -63,23 +60,16 @@ async function pixabay(name, page) {
   };
 
   try {
-    // отримання відповіді-результату від бекенду
     const response = await axios.get(API_URL, options);
 
-    // сповіщення notiflix
-    notification(
-      response.data.hits.length, // довжина всіх знайдених зображень
-      response.data.total // отримання кількості
-    );
+    notification(response.data.hits.length, response.data.total);
 
     createMarkup(response.data);
-    // refs.form.reset(); // рендер розмітки на сторінку
   } catch (error) {
     console.log(error);
   }
 }
 
-// рендер розмітки на сторінку
 function createMarkup(arr) {
   const markup = arr.hits
     .map(
@@ -110,15 +100,14 @@ function createMarkup(arr) {
             </div>
         </a>`
     )
-    .join(''); // сполучення рядків всіх об'єктів (всіх картинок)
-  refs.gallery.insertAdjacentHTML('beforeend', markup); // вставлення розмітки на сторінку
-  simpleLightBox.refresh(); // оновлення екземпляру lightbox
+    .join('');
+  refs.gallery.insertAdjacentHTML('beforeend', markup);
+  simpleLightBox.refresh();
 }
 
-// екземпляр модального вікна слайдера-зображень
 const simpleLightBox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt', // опис
-  captionDelay: 250, // затримка 250 мілісекунд
+  captionsData: 'alt',
+  captionDelay: 250,
 });
 
 // всі сповіщення notiflix
@@ -151,26 +140,23 @@ const simpleLightBox = new SimpleLightbox('.gallery a', {
 
 function notification(length, totalHits) {
   if (length === 0) {
-    // вивести повідомлення про те, що НЕ знайдено жодного зображення
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
 
-    refs.btnLoadMore.style.display = 'none'; // ховаємо кнопку loadMore
+    refs.btnLoadMore.style.display = 'none';
     return;
   }
 
   if (page === 1) {
-    refs.btnLoadMore.style.display = 'flex'; // показуємо кнопку loadMore
+    refs.btnLoadMore.style.display = 'flex';
 
-    // вивести повідомлення про кількість знайдених зобрежнь
     Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
   }
 
   if (length < 40) {
-    refs.btnLoadMore.style.display = 'none'; // ховаємо кнопку loadMore
+    refs.btnLoadMore.style.display = 'none';
 
-    // вивести інфо-повідомлення про те, що більше вже немає зображень
     Notiflix.Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
